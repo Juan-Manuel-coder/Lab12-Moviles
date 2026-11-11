@@ -57,3 +57,10 @@ dependencies {
     implementation("com.google.maps.android:maps-compose-utils:$mapsComposeVersion")
     implementation("com.google.maps.android:maps-compose-widgets:$mapsComposeVersion")
 }
+
+secrets {
+    // Le dice al plugin que busque tu clave real en este archivo
+    propertiesFileName = "secrets.properties"
+    // Le dice al plugin que use este archivo como respaldo si el anterior no existe
+    defaultPropertiesFileName = "local.defaults.properties"
+}

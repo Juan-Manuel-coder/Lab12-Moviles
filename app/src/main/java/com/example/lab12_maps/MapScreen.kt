@@ -2,14 +2,25 @@ package com.example.lab12_maps
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
@@ -24,22 +35,23 @@ fun MapScreen() {
         position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(ArequipaLocation, 12f)
     }
 
-    // ANIMACIÓN DE LA CÁMARA HACIA YURA (Paso 4 del documento)
+    // EJERCICIO 1: Estado para cambiar el tipo de mapa
+    var isSatellite by remember { mutableStateOf(false) }
+
+    // ANIMACIÓN DE LA CÁMARA HACIA YURA
     LaunchedEffect(Unit) {
         cameraPositionState.animate(
-            update = CameraUpdateFactory.newLatLngZoom(LatLng(-16.2520984, -71.6836503), 12f), // Mover a Yura
-            durationMs = 3000 // Duración de 3 segundos
+            update = CameraUpdateFactory.newLatLngZoom(LatLng(-16.2520984, -71.6836503), 12f),
+            durationMs = 3000
         )
     }
 
-    // 2. LISTA DE VARIOS MARCADORES
     val locations = listOf(
         LatLng(-16.433415, -71.5442652), // JLByR
         LatLng(-16.4205151, -71.4945209), // Paucarpata
         LatLng(-16.3524187, -71.5675994) // Zamacola
     )
 
-    // 3. COORDENADAS DE LOS POLÍGONOS
     val mallAventuraPolygon = listOf(
         LatLng(-16.432292, -71.509145),
         LatLng(-16.432757, -71.509626),
@@ -64,16 +76,18 @@ fun MapScreen() {
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
+            // Aquí aplicamos el tipo de mapa dinámicamente
+            properties = MapProperties(
+                mapType = if (isSatellite) MapType.SATELLITE else MapType.NORMAL
+            )
         ) {
-            // 1. MARCADOR CON LA IMAGEN
             Marker(
                 state = rememberMarkerState(position = ArequipaLocation),
                 icon = BitmapDescriptorFactory.fromResource(R.drawable.montana),
                 title = "Arequipa, Perú"
             )
 
-            // 2. LOS 3 MARCADORES EXTRA
             locations.forEach { location ->
                 Marker(
                     state = rememberMarkerState(position = location),
@@ -82,7 +96,6 @@ fun MapScreen() {
                 )
             }
 
-            // 3. LOS POLÍGONOS
             Polygon(
                 points = plazaDeArmasPolygon,
                 strokeColor = Color.Red,
@@ -102,15 +115,24 @@ fun MapScreen() {
                 strokeWidth = 5f
             )
 
-            // 4. POLILÍNEA
             Polyline(
                 points = listOf(
-                    LatLng(-16.433415, -71.5442652), // JLByR
-                    LatLng(-16.4205151, -71.4945209) // Paucarpata
+                    LatLng(-16.433415, -71.5442652),
+                    LatLng(-16.4205151, -71.4945209)
                 ),
                 color = Color.Green,
                 width = 10f
             )
+        }
+
+        // BOTÓN PARA EL EJERCICIO 1
+        Button(
+            onClick = { isSatellite = !isSatellite },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        ) {
+            Text(text = if (isSatellite) "Ver Mapa Normal" else "Ver Mapa Satélite")
         }
     }
 }
